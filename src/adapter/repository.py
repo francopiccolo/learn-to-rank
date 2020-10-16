@@ -9,16 +9,24 @@ class AbstractRepository(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get(self, country_id, city_id) -> List[model.Property]:
+    def get(self, city_id) -> List[model.Property]:
         raise NotImplementedError
 
 class FakeRepository(AbstractRepository):
-    def __init__(self, properties):
-        self.properties = properties
+    def __init__(self, properties=None):
+        if properties is None:
+            self.properties = []
+        else:
+            self.properties = properties
 
     def add(self, property):
-        pass
+        self.properties.append(property)
 
-    def get(self, country_id, city_id):
-        return [property for property in self.properties
-                if property.country_id == country_id and property.city_id == city_id]
+    def get(self, city_id, features):
+        property_ids = []
+        data = []
+        for property in self.properties:
+            if property.city_id == city_id:
+                property_ids.append(property.id)
+                data.append([getattr(property, feature) for feature in features])
+        return property_ids, data
